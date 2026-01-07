@@ -1,0 +1,76 @@
+import heapq
+
+# A* Algorithm implementation
+def a_star(graph, heuristic, start, goal):
+    
+    # Priority queue (min-heap)
+    open_list = []
+    heapq.heappush(open_list, (0, start))
+    
+    # Cost from start node
+    g_cost = {start: 0}
+    
+    # To store parent of each node
+    parent = {start: None}
+    
+    while open_list:
+        # Get node with lowest f(n)
+        _, current = heapq.heappop(open_list)
+        
+        # If goal is reached, reconstruct path
+        if current == goal:
+            return reconstruct_path(parent, goal), g_cost[goal]
+        
+        # Explore neighbors
+        for neighbor, cost in graph[current]:
+            tentative_g = g_cost[current] + cost
+            
+            if neighbor not in g_cost or tentative_g < g_cost[neighbor]:
+                g_cost[neighbor] = tentative_g
+                f_cost = tentative_g + heuristic[neighbor]
+                heapq.heappush(open_list, (f_cost, neighbor))
+                parent[neighbor] = current
+    
+    return None, float("inf")
+
+
+# Function to reconstruct path
+def reconstruct_path(parent, goal):
+    path = []
+    while goal is not None:
+        path.append(goal)
+        goal = parent[goal]
+    path.reverse()
+    return path
+
+
+# ---------------- MAIN PROGRAM ----------------
+
+# Graph represented as adjacency list
+graph = {
+    'A': [('B', 1), ('C', 3)],
+    'B': [('D', 3), ('E', 1)],
+    'C': [('F', 5)],
+    'D': [],
+    'E': [('F', 2)],
+    'F': []
+}
+
+# Heuristic values (estimated cost to goal)
+heuristic = {
+    'A': 7,
+    'B': 6,
+    'C': 5,
+    'D': 3,
+    'E': 2,
+    'F': 0
+}
+
+start_node = 'A'
+goal_node = 'F'
+
+path, cost = a_star(graph, heuristic, start_node, goal_node)
+
+print("A* Algorithm Implementation\n")
+print("Shortest Path:", " -> ".join(path))
+print("Total Cost:", cost)
